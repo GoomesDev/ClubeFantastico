@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { TableBook } from "@/styledComponents/styledComponents";
+import React, { useEffect, useState } from "react"
+import { TableBook , Header , Logo , MiniHeader , HrBar , CustomButton } from "@/styledComponents/styledComponents"
+import CreateForm from "./form/Create"
 
 const Homepage = () => {
 
     const [data, setData] = useState([])
+
+    const [openCreate, setOpenCreate] = useState(false)
+    const handleOpenCreate = () => {setOpenCreate(true)}
+    const handleCloseCreate = () => {setOpenCreate(false)}
 
     
     // Get books
@@ -19,10 +24,21 @@ const Homepage = () => {
     }, [])
 
     return (
-        <div>
-            <h1>HOME</h1>
+        <>
+            <Header>
+                <Logo />
+                <MiniHeader>
+                    <CustomButton alias='info' />
+                    <CustomButton alias='create' action={handleOpenCreate}/>
+                </MiniHeader>
+            </Header>
+
+            <HrBar />
+
             <TableBook data={data}/>
-        </div>
+
+            <CreateForm open={openCreate} handleClose={handleCloseCreate}/>
+        </>
     )
 }
 
