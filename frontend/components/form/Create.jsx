@@ -1,8 +1,17 @@
-import React from 'react';
-import { Dialog , DialogContent , DialogActions } from '@mui/material'
-import { DialogHeader , Title , CreateInput , ActionButton } from "@/styledComponents/styledComponents";
+import React, { useState } from 'react';
+import { Dialog , DialogContent } from '@mui/material'
+import { DialogHeader , Title , ErrorInput } from "@/styledComponents/styledComponents"
+import { CreateInput } from '../hooks/CreateInput';
 
-const CreateForm = ({open , handleClose}) => {
+const CreateForm = ({open, setOpen, handleClose}) => {
+
+    const [openAlert, setOpenAlert] = useState(false)
+    const handleOpenAlert = () => {
+        setOpenAlert(true)
+    }
+    const handleCloseAlert = () => {
+        setOpenAlert(false)
+    }
 
         return (
             <Dialog
@@ -13,12 +22,9 @@ const CreateForm = ({open , handleClose}) => {
                     <Title>Cadastrar nova leitura</Title>
                 </DialogHeader>
                 <DialogContent>
-                    <CreateInput />
+                    <CreateInput setOpen={setOpen} handleClose={handleClose} handleOpenAlert={handleOpenAlert}/>
                 </DialogContent>
-                <DialogActions>
-                    <ActionButton alias='submit'/>
-                    <ActionButton alias='cancel' action={handleClose}/>
-                </DialogActions>
+                <ErrorInput open={openAlert} handleClose={handleCloseAlert} />
             </Dialog>
         )
 }

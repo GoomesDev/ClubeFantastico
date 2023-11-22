@@ -10,4 +10,5 @@ Route::post('/user/login', 'App\Http\Controllers\UserController@login');
 
 // Books
 Route::get('/books', 'App\Http\Controllers\BooksController@listAll');
-Route::delete('/delete/{$id}', 'App\Http\Controllers\BooksController@delete');
+Route::delete('/delete/{id}', 'App\Http\Controllers\BooksController@delete');
+Route::post('/create-book', 'App\Http\Controllers\BooksController@registerBook');

@@ -1,8 +1,9 @@
 import Image from "next/image"
-import { Paper , DialogContent , Tab , TextField , Button, Alert , Collapse, Table , TableBody , TableHead , TableRow, TableCell , Tooltip , Switch} from '@mui/material';
-import styled from "styled-components";
-import PersonIcon from '@mui/icons-material/Person';
-import { useRef } from "react";
+import { Paper , DialogContent , Tab , TextField , Button, Alert , Collapse , Tooltip , Checkbox , Select, MenuItem , Rating } from '@mui/material'
+import styled from "styled-components"
+import PersonIcon from '@mui/icons-material/Person'
+import LogoutIcon from '@mui/icons-material/Logout'
+import { useRef, useState } from "react"
 
 
 export const Logo = () => {
@@ -107,6 +108,7 @@ export const Frame = ({children}) => {
     )
 }
 
+// Error's Alert's Login
 export const ErrorAlert = ({alias, alertOpen, handleAlertClose}) => {
 
     const getText = () => {
@@ -134,48 +136,13 @@ export const ErrorAlert = ({alias, alertOpen, handleAlertClose}) => {
     )
 }
 
-export const TableBook = ({data}) => {
-    return (
-        <Paper style={{margin: '10px'}}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell style={{width: '3%'}}>#</TableCell>
-                        <TableCell style={{width: '20%'}}>Livro</TableCell>
-                        <TableCell style={{width: '20%'}}>Autor</TableCell>
-                        <TableCell style={{width: '12%'}}>Gênero</TableCell>
-                        <TableCell style={{width: '5%'}}>Avaliação</TableCell>
-                        <TableCell style={{width: '3%'}}>Releitura?</TableCell>
-                        <TableCell style={{width: '3%'}}>Páginas</TableCell>
-                        <TableCell style={{width: '12%'}}>Opções</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {Array.isArray(data) && data.map(item => (
-                        <TableRow key={item.id}>
-                            <TableCell>{item.id}</TableCell>
-                            <TableCell>{item.book}</TableCell>
-                            <TableCell>{item.author}</TableCell>
-                            <TableCell>{item.genre}</TableCell>
-                            <TableCell>{item.rating}</TableCell>
-                            <TableCell>{item.rereading === true ? 'Sim' : 'Não'}</TableCell>
-                            <TableCell>{item.pages}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </Paper>
-        
-    )
-}
-
 export const Header = styled.div`
-    width: 95%;
+    width: 97%;
     display: flex;
     justify-content: space-between;
     place-items: center;
     margin: auto;
-    padding: 10px 0 10px 0;
+    padding: 10px 0px 10px 0px;
 `
 
 export const MiniHeader = styled.div`
@@ -204,6 +171,11 @@ export const CustomButton = ({alias, action}) => {
             color: '#6a9ece',
             content: <PersonIcon />,
             description: 'Informações do usuário'
+        },
+        logout: {
+            color: '#ce6a6a',
+            content: <LogoutIcon />,
+            description: 'Sair'
         }
     }
 
@@ -220,15 +192,15 @@ export const CustomButton = ({alias, action}) => {
     }
 
     const Btn = styled.div`
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
         border-radius: 5px;
         box-shadow: 1px 1px 1px 0px #b6b6b6;
         background-color: ${getColor()};
         display: flex;
         place-content: center;
         place-items: center;
-        font-size: 25px;
+        font-size: 20px;
         font-weight: 900;
         color: #fff;
         cursor: pointer;
@@ -259,6 +231,14 @@ export const ActionButton = ({alias, action}) => {
         cancel: {
             color: '#e05353',
             content: 'Cancelar',
+        },
+        yes: {
+            color: '#e05353',
+            content: 'Sim',
+        },
+        no: {
+            color: '#6ace9d',
+            content: 'Não',
         }
     }
 
@@ -300,75 +280,21 @@ export const ActionButton = ({alias, action}) => {
 export const Title = styled.h2`
     margin: 0;
 `
-export const CreateInput = () => {
 
-    const [bookRef, authorRef, genreRef, ratingRef, rereadingRef, pagesRef] = [useRef(), useRef(), useRef(), useRef(), useRef(), useRef()]
-
-    const handleTest = () => {
-        const [book, author, genre, rating, rereading, pages] = [
-            bookRef.current.value,
-            authorRef.current.value,
-            genreRef.current.value,
-            ratingRef.current.value,
-            rereadingRef.current.value,
-            pagesRef.current.value
-        ]
-        console.log(book, author, genre, rating, rereading, pages)
-    }
+// Error's Alert's Create Book
+export const ErrorInput = ({open, handleClose}) => {
 
     return (
-        <div style={{
-            width: '90%',
-            display: 'flex',
-            flexDirection: 'column',
-            gap : '12px',
-            placeItems: 'center',
-            margin: 'auto'
-        }}>
-            <TextField
-                style={{width: '100%'}}
-                variant="outlined"
-                label="Nome do Livro"
-                inputRef={bookRef}
-                size="small"
-            />
-            <div style={{width: '100%' ,display: 'flex', justifyContent: 'space-between'}}>
-                <TextField
-                    variant="outlined"
-                    label="Autor"
-                    inputRef={authorRef}
-                    size="small"
-                />
-                <TextField
-                    variant="outlined"
-                    label="Gênero"
-                    inputRef={genreRef}
-                    size="small"
-                />
-            </div>
-            <div style={{width: '100%' ,display: 'flex', justifyContent: 'space-between'}}>
-                <TextField
-                    type="number"
-                    variant="outlined"
-                    label="Avaliação"
-                    inputRef={ratingRef}
-                    size="small"
-                />
-                <TextField
-                    type="number"
-                    variant="outlined"
-                    label="Páginas"
-                    inputRef={pagesRef}
-                    size="small"
-                />
-            </div>
-            <h5 style={{margin: 0}}>Releitura?</h5>
-            <Switch
-                label="Releitura"
-                inputRef={rereadingRef}
-                size="small"
-            />
-            <Button onClick={handleTest}>Testar</Button>
-        </div>
+        <Collapse in={open}>
+            <Alert 
+            open={open} 
+            onClose={handleClose} 
+            variant="filled" 
+            severity='warning'
+            style={{borderRadius: '0'}}
+            >
+                É necessário preencher todos os campos!
+            </Alert>
+        </Collapse>
     )
 }
