@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { Header , Logo , MiniHeader , HrBar , CustomButton , ActionButton } from "@/styledComponents/styledComponents"
-import { Paper , Table , TableBody , TableHead , TableRow, TableCell , Tooltip , IconButton , Dialog , DialogActions , DialogContent} from '@mui/material'
+import { Header , Logo , MiniHeader , HrBar , CustomButton , ActionButton , TableTitle , TableItem } from "@/styledComponents/styledComponents"
+import { Paper , Table , TableBody , TableHead , TableRow, TableCell , Tooltip , IconButton , Dialog , DialogActions , DialogContent , Rating } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 import CreateForm from "./form/Create"
@@ -8,33 +8,54 @@ import { useRouter } from "next/router"
 import EditForm from "./form/Edit"
 
 const Homepage = () => {
+
+    // Router
+    const router = useRouter()
+    const userId = router.query
+    const user_id = parseInt(userId.user_id)
+    const Logout = () => {
+        router.push('/')
+    }
+    console.log(user_id)
+
     const [openCreate, setOpenCreate] = useState(false)
     const [openEdit, setOpenEdit] = useState(false)
     const [openDelete, setOpenDelete] = useState(false)
     const [bookId, setBookId] = useState(null)
+    const [changedBook, setChangedBook] = useState([])
 
     const handleOpenCreate = () => {setOpenCreate(true)}
-    const handleOpenEdit = () => {setOpenEdit(true)}
+
+    const handleOpenEdit = (item) => {
+        setBookId(item.id)
+        setChangedBook({
+            book: item.book,
+            author: item.author,
+            genre: item.genre,
+            rating: item.rating,
+            rereading: item.rereading,
+            pages: item.pages
+        })
+        setOpenEdit(true)
+    }
+
     const handleOpenDelete = (item) => {
         setBookId(item.id)
         setOpenDelete(true)
     }
     const handleCloseDelete = () => {setOpenDelete(false)}
 
-    const router = useRouter()
-    const Logout = () => {
-        router.push('/')
-    }
-
     const [data, setData] = useState([])
 
     // GET books
     const getBooks = async() => {
-        let url = `http://127.0.0.1:8000/api/books`
+        let url = `http://127.0.0.1:8000/api/books/${user_id}`
         const res = await fetch(url)
         const books = await res.json()
         setData(books)
     }
+
+    console.log('Books', data)
 
     useEffect(() => {
         getBooks()
@@ -50,10 +71,12 @@ const Homepage = () => {
                 book: formValues.book,
                 author: formValues.author,
                 genre: formValues.genre,
-                rating: formValues.rating,
+                rating: parseFloat(formValues.rating),
                 rereading: formValues.rereading,
-                pages: formValues.pages
+                pages: formValues.pages,
+                user_id,
             }
+            console.log(body)
 
             let url = `http://127.0.0.1:8000/api/create-book`
             const res = await fetch(url, {
@@ -71,18 +94,48 @@ const Homepage = () => {
                 console.log('Ocorreu algum erro!')
             }
         }
-
         postBook()
     }
 
-    const handleCloseEdit = () => {
-        console.log('Teste de close')
+    const handleCloseEdit = (editedBook) => {
+        console.log('Teste de close', editedBook)
+        setOpenEdit(false)
+
+        // PUT book
+        let body = {
+            book: editedBook.book,
+            author: editedBook.author,
+            genre: editedBook.genre,
+            rating: parseFloat(editedBook.rating),
+            rereading: editedBook.rereading !== null ? editedBook.rereading : 0,
+            pages: editedBook.pages,
+            user_id
+        }
+
+        const editBook = async() => {
+            let url = `http://127.0.0.1:8000/api/edit-book/${editedBook.id}`
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            })
+            if (res.status === 200) {
+                const book = await res.json();
+                getBooks()
+                console.log('Leitura editada com sucesso!', book)
+            } else {
+                console.log('Ocorreu algum erro!')
+            }
+        }
+        editBook()
     }
 
 
     // Delete books
     const deleteBooks = async() => {
-        let url = `http://127.0.0.1:8000/api/delete/${bookId}`
+        let url = `http://127.0.0.1:8000/api/delete/${bookId}/${user_id}`
         const res = await fetch(url, {
             method: 'DELETE',
             headers: {
@@ -113,49 +166,61 @@ const Homepage = () => {
             <HrBar />
 
             <Paper style={{margin: '10px'}}>
-                <Table>
+                <Table size="small" stickyHeader>
                     <TableHead>
                         <TableRow>
-                            <TableCell style={{width: '3%'}}>#</TableCell>
-                            <TableCell style={{width: '20%'}}>Livro</TableCell>
-                            <TableCell style={{width: '20%'}}>Autor</TableCell>
-                            <TableCell style={{width: '12%'}}>Gênero</TableCell>
-                            <TableCell style={{width: '5%'}}>Avaliação</TableCell>
-                            <TableCell style={{width: '3%'}}>Releitura?</TableCell>
-                            <TableCell style={{width: '3%'}}>Páginas</TableCell>
-                            <TableCell style={{width: '12%'}}>Opções</TableCell>
+                            <TableTitle style={{width: '30%'}}>Livro</TableTitle>
+                            <TableTitle style={{width: '20%'}}>Autor</TableTitle>
+                            <TableTitle style={{width: '12%'}}>Gênero</TableTitle>
+                            <TableTitle style={{width: '5%'}}>Avaliação</TableTitle>
+                            <TableTitle style={{width: '3%'}}>Releitura?</TableTitle>
+                            <TableTitle style={{width: '3%'}}>Páginas</TableTitle>
+                            <TableTitle style={{width: '12%'}}>Opções</TableTitle>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {Array.isArray(data) && data.map(item => (
                             <TableRow key={item.id}>
-                                <TableCell>{item.id}</TableCell>
-                                <TableCell>{item.book}</TableCell>
-                                <TableCell>{item.author}</TableCell>
-                                <TableCell>{item.genre}</TableCell>
-                                <TableCell>{item.rating}</TableCell>
-                                <TableCell>{item.rereading === true ? 'Sim' : 'Não'}</TableCell>
-                                <TableCell>{item.pages}</TableCell>
-                                <TableCell>
-                                    <Tooltip>
-                                        <IconButton onClick={handleOpenEdit}>
+                                <TableItem>{item.book}</TableItem>
+                                <TableItem>{item.author}</TableItem>
+                                <TableItem>{item.genre}</TableItem>
+                                <TableItem>
+                                    <Rating readOnly value={item.rating} precision={0.5} size="small"/>
+                                </TableItem>
+                                <TableItem>{item.rereading === 1 ? 'Sim' : 'Não'}</TableItem>
+                                <TableItem>{item.pages}</TableItem>
+                                <TableItem>
+                                    <Tooltip title='Editar leitura'>
+                                        <IconButton onClick={(e) => handleOpenEdit(item)}>
                                             <EditNoteIcon color="success"/>
                                         </IconButton>
+                                    </Tooltip>
 
+                                    <Tooltip title='Apagar leitura'>
                                         <IconButton onClick={(e) => handleOpenDelete(item)}>
                                             <DeleteIcon color="error"/>
                                         </IconButton>
                                     </Tooltip>
-                                </TableCell>
+                                </TableItem>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
             </Paper>
 
-            <CreateForm open={openCreate} setOpen={setOpenCreate} handleClose={handleCloseCreate}/>
+            <CreateForm 
+                open={openCreate} 
+                setOpen={setOpenCreate} 
+                handleClose={handleCloseCreate}
+            />
 
-            <EditForm open={openEdit} setOpen={setOpenEdit} handleClose={handleCloseEdit}/>
+            <EditForm 
+                open={openEdit} 
+                setOpen={setOpenEdit} 
+                handleClose={handleCloseEdit} 
+                bookId={bookId} 
+                changedBook={changedBook}
+            />
 
             <Dialog
                 open={openDelete}

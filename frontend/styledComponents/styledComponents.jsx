@@ -1,9 +1,8 @@
 import Image from "next/image"
-import { Paper , DialogContent , Tab , TextField , Button, Alert , Collapse , Tooltip , Checkbox , Select, MenuItem , Rating } from '@mui/material'
+import { Paper , DialogContent , Tab , TextField , Button, Alert , Collapse , Tooltip , TableCell } from '@mui/material'
 import styled from "styled-components"
 import PersonIcon from '@mui/icons-material/Person'
 import LogoutIcon from '@mui/icons-material/Logout'
-import { useRef, useState } from "react"
 
 
 export const Logo = () => {
@@ -158,6 +157,15 @@ export const HrBar = styled.div`
     height: 4px;
     background-color: #E5E0FF;
 `
+
+export const TableTitle = styled(TableCell)({
+    fontWeight: '600',
+    fontSize: '12px'
+})
+
+export const TableItem = styled(TableCell)({
+    fontSize: '13px'
+})
 
 export const CustomButton = ({alias, action}) => {
 

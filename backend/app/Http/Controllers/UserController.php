@@ -45,8 +45,29 @@ class UserController extends Controller
         $credentials = $request->only('username', 'password');
 
         if(Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Login bem sucedido']);
+            return response()->json([
+                'message' => 'Login bem-sucedido!',
+                'user_id' => auth()->user()->id,
+            ], 200);
         }
         return response()->json(['message' => 'Usuário ou senha incorretos'], 401);
+    }
+
+    // Total pages read per user
+    public function totalPages(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if(!$user) {
+            return response()->json(['message' => 'Usuário não encontrado!'], 404);
+        }
+
+        $totalPages = $user->books()->sum('pages');
+        $totalBooks = $user->books()->count();
+
+        return response()->json([
+            'totalPages' => $totalPages,
+            'totalBooks' => $totalBooks
+        ]);
     }
 }

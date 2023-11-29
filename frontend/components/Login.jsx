@@ -1,8 +1,8 @@
 import React, { useState , useRef } from "react";
 import { Paper , Dialog , Tabs } from '@mui/material';
 import { Logo } from "@/styledComponents/styledComponents";
-import { DialogHeader , DialogTabs , CustomTab , FormContainer , InputText , Submit , LabelText , Book , ErrorAlert } from "@/styledComponents/styledComponents";
-import { useRouter } from "next/navigation";
+import { DialogHeader , DialogTabs , CustomTab , FormContainer , InputText , Submit , LabelText , Book , ErrorAlert } from "@/styledComponents/styledComponents"
+import { useRouter } from "next/navigation"
 
 const LoginRegister = () => {
 
@@ -58,8 +58,11 @@ const LoginRegister = () => {
                     body: JSON.stringify({username, password})
                 })
                 if(res.status === 200) {
+                    const data = await res.json()
+                    const userId = data.user_id
+                    console.log('ID do usuário:', userId)
                     handleClose()
-                    router.push('home')
+                    router.push(`home/?user_id=${userId}`)
                 } else if (res.status === 401){
                     setError('Usário ou senha incorretos!')
                     setAlertOpen(true)

@@ -13,6 +13,11 @@ class User extends Model implements Authenticatable
     protected $table = 'users';
     protected $fillable = ['username', 'password'];
 
+    public function books()
+    {
+        return $this->hasMany(books::class);
+    }
+
     public function getAuthIdentifierName()
     {
         return 'username';

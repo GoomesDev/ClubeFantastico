@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('rating');
             $table->boolean('rereading');
             $table->integer('pages');
+            $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
     }

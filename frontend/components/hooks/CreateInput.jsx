@@ -10,7 +10,7 @@ export const CreateInput = ({handleClose , handleOpenAlert , setOpen}) => {
         book: '',
         author: '',
         genre: '',
-        rereading: 0,
+        rereading: null,
         pages: null,
     })
 
