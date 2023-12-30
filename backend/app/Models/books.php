@@ -18,4 +18,16 @@ class books extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function scopeSearch($query, $search)
+    {
+        if ($search) {
+            return $query->where(function ($query) use ($search) {
+                $query->where('book', 'LIKE', "%{$search}%")
+                      ->orWhere('author', 'LIKE', "%{$search}%");
+            });
+        }
+
+        return $query;
+    }
 }

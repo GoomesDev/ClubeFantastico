@@ -17,7 +17,7 @@ class BooksController extends Controller
     }
 
     // List by user_id
-    public function listByUser($user_id)
+    public function listByUser(Request $request, $user_id)
     {
         $user = User::find($user_id);
 
@@ -25,7 +25,10 @@ class BooksController extends Controller
             return response()->json(['message' => 'Usuário não encontrado!'], 404);
         }
 
-        $books = $user->books;
+        $orderBy = $request->get('orderBy', 'created_at');
+        $orderDirection = $request->get('orderDirection', 'desc');
+
+        $books = $user->books()->orderBy($orderBy, $orderDirection)->paginate(5);
 
         return response()->json($books);
     }
