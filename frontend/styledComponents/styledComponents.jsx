@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Paper , DialogContent , Tab , TextField , Button, Alert , Collapse , Tooltip , TableCell } from '@mui/material'
+import { DialogContent , Tab , TextField , Button, Alert , Collapse , Tooltip , TableCell } from '@mui/material'
 import styled from "styled-components"
 import PersonIcon from '@mui/icons-material/Person'
 import LogoutIcon from '@mui/icons-material/Logout'
@@ -92,21 +92,6 @@ export const Submit = styled(Button)({
     }
 })
 
-export const Frame = ({children}) => {
-
-    const MainFrame = styled(Paper)({
-        width: '97%',
-        margin: 'auto',
-        height: '92vh'
-    })
-
-    return (
-            <MainFrame>
-                {children}
-            </MainFrame>
-    )
-}
-
 // Error's Alert's Login
 export const ErrorAlert = ({alias, alertOpen, handleAlertClose}) => {
 
@@ -136,7 +121,7 @@ export const ErrorAlert = ({alias, alertOpen, handleAlertClose}) => {
 }
 
 export const Header = styled.div`
-    width: 97%;
+    width: 95%;
     display: flex;
     justify-content: space-between;
     place-items: center;
@@ -151,16 +136,10 @@ export const MiniHeader = styled.div`
     place-items: center;
 `
 
-export const HrBar = styled.div`
-    width: 100%;
-    margin: auto;
-    height: 4px;
-    background-color: #E5E0FF;
-`
-
 export const TableTitle = styled(TableCell)({
     fontWeight: '600',
-    fontSize: '12px'
+    fontSize: '12px',
+    background: '#f1f1f1'
 })
 
 export const TableItem = styled(TableCell)({
@@ -306,3 +285,9 @@ export const ErrorInput = ({open, handleClose}) => {
         </Collapse>
     )
 }
+
+export const Moldure = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`

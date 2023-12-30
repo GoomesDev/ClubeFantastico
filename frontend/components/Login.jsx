@@ -46,8 +46,6 @@ const LoginRegister = () => {
         }
 
         if(selectedTab === 0) {
-            console.log('login',[username, password])
-
             const handleLogin = async() => {
                 let url = `http://127.0.0.1:8000/api/user/login`
                 const res = await fetch(url, {
@@ -60,7 +58,6 @@ const LoginRegister = () => {
                 if(res.status === 200) {
                     const data = await res.json()
                     const userId = data.user_id
-                    console.log('ID do usuário:', userId)
                     handleClose()
                     router.push(`home/?user_id=${userId}`)
                 } else if (res.status === 401){
@@ -69,9 +66,7 @@ const LoginRegister = () => {
                 }
             }
             handleLogin()
-        } else {
-            console.log('register',[username, password])
-            
+        } else {            
             const handleRegister = async() => {
                 let url = `http://127.0.0.1:8000/api/user/register`
                 const res = await fetch(url , {
@@ -83,7 +78,6 @@ const LoginRegister = () => {
                 })
                 if (res.status === 200) {
                     const data = await res.json();
-                    console.log('Registro bem-sucedido:', data);
                     setError('Usário cadastrado com sucesso! Faça o login.')
                     setAlertOpen(true)
                 } else if (res.status === 401) {

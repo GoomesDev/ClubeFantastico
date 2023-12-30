@@ -26,6 +26,7 @@ class BooksController extends Controller
         }
 
         $orderBy = $request->get('orderBy', 'created_at');
+        
         $orderDirection = $request->get('orderDirection', 'desc');
 
         $books = $user->books()->orderBy($orderBy, $orderDirection)->paginate(5);

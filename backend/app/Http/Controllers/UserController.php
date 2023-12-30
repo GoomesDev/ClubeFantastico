@@ -23,6 +23,7 @@ class UserController extends Controller
         $password = $request->input('password');
 
         $existingUser = User::where('username', $username)->first();
+        
         if ($existingUser) {
             return response()->json(['message' => 'Usuário já existente'], 401);
         }

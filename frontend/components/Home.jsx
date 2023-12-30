@@ -1,11 +1,53 @@
 import React, { useEffect, useState } from "react"
-import { Header , Logo , MiniHeader , HrBar , CustomButton , ActionButton , TableTitle , TableItem } from "@/styledComponents/styledComponents"
-import { Paper , Table , TableBody , TableHead , TableRow, TableCell , Tooltip , IconButton , Dialog , DialogActions , DialogContent , Rating } from '@mui/material'
+import { 
+    Header,
+    Logo,
+    MiniHeader,
+    CustomButton,
+    ActionButton,
+    TableTitle,
+    TableItem,
+    Moldure
+} from "@/styledComponents/styledComponents"
+import {
+    Paper,
+    Table,
+    TableBody,
+    TableHead,
+    TableRow,
+    Tooltip,
+    IconButton,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    Rating,
+    TextField,
+    Pagination
+} from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditNoteIcon from '@mui/icons-material/EditNote'
 import CreateForm from "./form/Create"
 import { useRouter } from "next/router"
 import EditForm from "./form/Edit"
+import { useSpring, animated } from "react-spring"
+import styled from "styled-components"
+import InputAdornment from '@mui/material/InputAdornment'
+import SearchIcon from '@mui/icons-material/Search'
+
+const CustomPaper = styled(Paper)({
+    margin: '10px',
+    borderRadius: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '5px'
+})
+
+const Container = styled.div`
+    width: 25%;
+    display: flex;
+    justify-content: space-between;
+    margin: 5px;
+`
 
 const Homepage = () => {
 
@@ -16,13 +58,20 @@ const Homepage = () => {
     const Logout = () => {
         router.push('/')
     }
-    console.log(user_id)
 
+    const [data, setData] = useState([])
+    const [filterData, setFilterData] = useState([])
     const [openCreate, setOpenCreate] = useState(false)
     const [openEdit, setOpenEdit] = useState(false)
     const [openDelete, setOpenDelete] = useState(false)
     const [bookId, setBookId] = useState(null)
     const [changedBook, setChangedBook] = useState([])
+    const [expanded, setExpanded] = useState(false)
+    const [visibility, setVisibility] = useState(false)
+    const [stats, setStats] = useState([])
+    const [achievementBadge, setAchievementBadge] = useState('')
+    const [search, setSearch] = useState('')
+    const [page, setPage] = useState(1)
 
     const handleOpenCreate = () => {setOpenCreate(true)}
 
@@ -45,21 +94,34 @@ const Homepage = () => {
     }
     const handleCloseDelete = () => {setOpenDelete(false)}
 
-    const [data, setData] = useState([])
+    // Info animation
+    const expandInfo = useSpring({
+        height: expanded ? 100 : 0,
+        visibility: visibility ? 'visible' : 'hidden',
+        config: {duration: 100}
+    })
+
+    const handleAnimate = () => {
+        setExpanded(!expanded)
+        setVisibility(!visibility)
+        achievement()
+        userStats()
+    }
 
     // GET books
     const getBooks = async() => {
-        let url = `http://127.0.0.1:8000/api/books/${user_id}`
+        let url = `http://127.0.0.1:8000/api/books/${user_id}?page=${page}`
         const res = await fetch(url)
         const books = await res.json()
         setData(books)
+        if (books.data) {
+            setFilterData(books.data.filter(book => book.book.toLowerCase().includes(search) || book.author.toLowerCase().includes(search)))
+        }
     }
-
-    console.log('Books', data)
 
     useEffect(() => {
         getBooks()
-    }, [])
+    }, [user_id, search, page])
 
     const handleCloseCreate = (formValues) => {
         setOpenCreate(false)
@@ -76,8 +138,6 @@ const Homepage = () => {
                 pages: formValues.pages,
                 user_id,
             }
-            console.log(body)
-
             let url = `http://127.0.0.1:8000/api/create-book`
             const res = await fetch(url, {
                 method: 'POST',
@@ -89,7 +149,6 @@ const Homepage = () => {
             if (res.status === 200) {
                 const newBook = await res.json();
                 getBooks()
-                console.log('Livro cadastrado com sucesso!', newBook)
             } else {
                 console.log('Ocorreu algum erro!')
             }
@@ -98,7 +157,6 @@ const Homepage = () => {
     }
 
     const handleCloseEdit = (editedBook) => {
-        console.log('Teste de close', editedBook)
         setOpenEdit(false)
 
         // PUT book
@@ -124,7 +182,6 @@ const Homepage = () => {
             if (res.status === 200) {
                 const book = await res.json();
                 getBooks()
-                console.log('Leitura editada com sucesso!', book)
             } else {
                 console.log('Ocorreu algum erro!')
             }
@@ -144,7 +201,6 @@ const Homepage = () => {
         })
         if(res.status === 200) {
             const delBook = await res.json()
-            console.log('Livro deletado com sucesso!', delBook)
             getBooks()
             handleCloseDelete()
         } else {
@@ -152,34 +208,135 @@ const Homepage = () => {
         }
     }
 
+    const userStats = async() => {
+        let url = `http://127.0.0.1:8000/api/user/total-pages/${user_id}`
+        const res = await fetch(url)
+        const stats = await res.json()
+        setStats(stats)
+    }
+
+    const achievements = [
+        { threshold: 100000, badge: 'Bibliotecário' },
+        { threshold: 50000, badge: 'Booktuber' },
+        { threshold: 25000, badge: 'Amante dos calhamaços' },
+        { threshold: 20000, badge: 'Colecionador' },
+        { threshold: 15000, badge: 'Leitor de trilogias' },
+        { threshold: 10000, badge: 'Primeira estante' },
+        { threshold: 5000, badge: 'Entusiasta' },
+        { threshold: 2500, badge: 'Prefere filmes a livros' },
+        { threshold: 2000, badge: 'Leitor Crepúsculo' },
+        { threshold: 1500, badge: 'Modinha' },
+        { threshold: 1000, badge: 'Iniciante' },
+        { threshold: 500, badge: 'Amador' },
+        { threshold: 100, badge: 'Principiante' },
+        { threshold: 0, badge: 'Pato' },
+      ]
+      
+      const calculateAchievementBadge = (totalPages) => {
+        for (const { threshold, badge } of achievements) {
+          if (totalPages >= threshold) {
+            return badge
+          }
+        }
+      }
+    
+      const achievement = () => {
+        const totalPages = parseFloat(stats.totalPages)
+        const achievementBadge = calculateAchievementBadge(totalPages)
+        setAchievementBadge(achievementBadge)
+      }
+
+    // Functions para search
+    const handleChange = e => {
+        setSearch(e.target.value)
+    }
+
+    const handlePageChange = (event, newPage) => {
+        setPage(newPage);
+    }
+
+
     return (
         <>
-            <Header>
-                <Logo />
-                <MiniHeader>
-                    <CustomButton alias='info' />
-                    <CustomButton alias='create' action={handleOpenCreate}/>
-                    <CustomButton alias='logout' action={Logout}/>
-                </MiniHeader>
-            </Header>
+            <Paper style={{margin: '10px', borderRadius: '10px'}}>
+                <Header>
+                    <Logo />
+                        <MiniHeader>
+                            <CustomButton alias='info' action={handleAnimate}/>
+                            <CustomButton alias='create' action={handleOpenCreate}/>
+                            <CustomButton alias='logout' action={Logout}/>
+                        </MiniHeader>
+                </Header>
+            </Paper>
+            
+            <animated.div 
+                style={{
+                    background: '#fff',
+                    margin: '10px',
+                    borderRadius: '10px',
+                    boxShadow: '0 1px 1px 0px gray',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-evenly',
+                    ...expandInfo,
+                }}
+            >       
+                    
+                    <h2>{achievementBadge}</h2>
 
-            <HrBar />
+                    <Moldure>
+                        <h1 style={{margin: 0}}>{stats.totalPages}</h1>
+                        <span>páginas lidas</span>
+                    </Moldure>
 
-            <Paper style={{margin: '10px'}}>
-                <Table size="small" stickyHeader>
+                    <Moldure>
+                        <h1 style={{margin: 0}}>{stats.totalBooks}</h1>
+                        <span>livros lidos</span>
+                    </Moldure>
+                    
+            </animated.div>
+
+            <CustomPaper>
+            
+            <Container>
+                <TextField 
+                    variant="outlined"
+                    placeholder="Busque sua leitura"
+                    size="small"
+                    value={search}
+                    onChange={handleChange}
+                    InputProps={{
+                        startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                        ),
+                    }}
+                />
+            </Container>
+
+                <Table size="small">
                     <TableHead>
                         <TableRow>
-                            <TableTitle style={{width: '30%'}}>Livro</TableTitle>
+                            <TableTitle 
+                                style={{width: '30%'}}
+                            >
+                                Livro
+                            </TableTitle>
                             <TableTitle style={{width: '20%'}}>Autor</TableTitle>
                             <TableTitle style={{width: '12%'}}>Gênero</TableTitle>
                             <TableTitle style={{width: '5%'}}>Avaliação</TableTitle>
                             <TableTitle style={{width: '3%'}}>Releitura?</TableTitle>
                             <TableTitle style={{width: '3%'}}>Páginas</TableTitle>
-                            <TableTitle style={{width: '12%'}}>Opções</TableTitle>
+                            <TableTitle 
+                                style={{width: '12%'}}
+                            >
+                                Opções
+                            </TableTitle>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {Array.isArray(data) && data.map(item => (
+                        {Array.isArray(filterData) && filterData.map(item => (
                             <TableRow key={item.id}>
                                 <TableItem>{item.book}</TableItem>
                                 <TableItem>{item.author}</TableItem>
@@ -206,7 +363,14 @@ const Homepage = () => {
                         ))}
                     </TableBody>
                 </Table>
-            </Paper>
+                <Pagination
+                        style={{alignSelf: 'flex-end', margin: '10px'}}
+                        count={data.last_page}
+                        current_page={page}
+                        onChange={handlePageChange}
+                        size="small"
+                    />
+            </CustomPaper>
 
             <CreateForm 
                 open={openCreate} 
